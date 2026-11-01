@@ -1,7 +1,4 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/logo/vibeproxy-wordmark-white.svg">
-  <img src="assets/logo/vibeproxy-wordmark.svg" width="340" alt="VibeProxy">
-</picture>
+![VibeProxy — One endpoint. Every account.](assets/brand/vibeproxy-banner.png)
 
 # VibeProxy · VPXY
 
