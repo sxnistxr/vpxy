@@ -73,6 +73,9 @@ def build(args):
             destination = staging / "docs" / source.name
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, destination)
+        for directory in ("assets/screenshots", "assets/brand"):
+            if (ROOT / directory).is_dir():
+                shutil.copytree(ROOT / directory, staging / directory)
         (staging / "build-info.json").write_text(json.dumps({
             "version": args.version, "commit": commit, "built_at": date,
             "os": goos, "architecture": goarch,

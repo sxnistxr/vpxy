@@ -15,6 +15,46 @@ sessions, real subscription quota monitoring, and a redesigned management dashbo
 [Download a release](https://github.com/sxnistxr/vpxy/releases/latest) ·
 [Console features](docs/DASHBOARD.md) · [Management API](docs/management-api-v8.md)
 
+## Console preview
+
+These are screenshots of the working console with **synthetic sample data**. Account identities
+are masked; the captures contain no live credentials or account details. Click an image to see
+it at full resolution.
+
+### Accounts, quota, and routing at a glance
+
+[![VibeProxy dark overview showing provider quota, live sessions, weekly resets, and account status](assets/screenshots/overview-dark.png)](assets/screenshots/overview-dark.png)
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Quota windows and reset times</strong><br><br>
+      <a href="assets/screenshots/quota.png"><img src="assets/screenshots/quota.png" alt="Sample quota page with per-account five-hour and weekly windows, reset schedule, and banked resets" width="100%"></a>
+    </td>
+    <td width="50%" valign="top">
+      <strong>Session affinity and prompt cache</strong><br><br>
+      <a href="assets/screenshots/sessions-cache.png"><img src="assets/screenshots/sessions-cache.png" alt="Sample sessions page with account bindings, idle expiry, cache reads and writes, and rebuild history" width="100%"></a>
+    </td>
+  </tr>
+</table>
+
+<details>
+<summary>Credentials, light theme, and mobile screenshots</summary>
+
+### Credential management
+
+[![Sample credential list with provider filters, recovery status, priorities, and management actions](assets/screenshots/credentials.png)](assets/screenshots/credentials.png)
+
+### Light theme
+
+[![VibeProxy overview in the light theme](assets/screenshots/overview-light.png)](assets/screenshots/overview-light.png)
+
+### On your phone
+
+<a href="assets/screenshots/overview-mobile.png"><img src="assets/screenshots/overview-mobile.png" alt="VibeProxy overview at a 390-pixel mobile viewport" width="320"></a>
+
+</details>
+
 ## Features
 
 - **Expiration-first routing.** Within the highest eligible priority tier, new sessions use the

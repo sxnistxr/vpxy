@@ -3,12 +3,23 @@
 import { chromium, type Page } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { strict as assert } from "node:assert";
-import { existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..", "dist", "static");
 const shots = join(import.meta.dir, "..", "..", ".impeccable", "review");
 mkdirSync(shots, { recursive: true });
+const gallery = process.argv.includes("--gallery");
+const galleryRoot = join(import.meta.dir, "..", "..", "assets", "screenshots");
+const galleryImages: Record<string, string> = {
+  "desktop.png": "overview-dark.png",
+  "desktop-light.png": "overview-light.png",
+  "sessions-desktop.png": "sessions-cache.png",
+  "credentials-desktop.png": "credentials.png",
+  "quota-desktop.png": "quota.png",
+  "mobile.png": "overview-mobile.png",
+};
+if (gallery) mkdirSync(galleryRoot, { recursive: true });
 const now = Date.now();
 const at = (hours: number) => new Date(now + hours * 3600_000).toISOString();
 const cache = (requests: number) => ({
@@ -415,6 +426,9 @@ const screenshot = async (name: string) => {
       nodes.forEach((node) => (node as HTMLButtonElement).click()),
     );
   await page.evaluate(() => document.fonts.ready);
+  await page.waitForFunction(
+    () => document.querySelectorAll('[aria-live="polite"] > *').length === 0,
+  );
   await page.evaluate(
     () =>
       new Promise((resolve) =>
@@ -433,6 +447,9 @@ const screenshot = async (name: string) => {
     page.viewportSize()!.width,
     `Invalid screenshot width: ${name}`,
   );
+  if (gallery && galleryImages[name]) {
+    copyFileSync(join(shots, name), join(galleryRoot, galleryImages[name]));
+  }
 };
 const clickTab = async (name: string) =>
   page.getByRole("tab", { name, exact: true }).click();
@@ -482,6 +499,8 @@ try {
     );
     if (
       [
+        "quota",
+        "sessions",
         "credentials",
         "sign-in",
         "providers",
