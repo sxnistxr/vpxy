@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "bun"
+    ],
+    "paths": {
+      "$lib/*": [
+        "./app/lib/*"
+      ],
+      "$components/*": [
+        "./app/components/*"
+      ]
+    }
+  },
+  "include": [
+    "app",
+    "optz.config.ts",
+    ".optz/types.d.ts"
+  ]
+}

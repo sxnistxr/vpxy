@@ -1,0 +1,8 @@
+# graphify: skip generated, vendored and asset-only paths
+assets/
+auths/
+**/dist/
+**/.optz/
+**/node_modules/
+dashboard/dist/
+internal/managementasset/dashboard/

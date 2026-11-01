@@ -1,0 +1,104 @@
+name: Release VPXY
+
+on:
+  push:
+    tags: ['v[0-9]*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing version tag to build and release (for example v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_VERSION: ${{ inputs.version || github.ref_name }}
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {target: linux-amd64, runner: ubuntu-24.04}
+          - {target: linux-arm64, runner: ubuntu-24.04-arm}
+          - {target: darwin-amd64, runner: macos-15-intel}
+          - {target: darwin-arm64, runner: macos-15}
+          - {target: windows-amd64, runner: windows-2025}
+          - {target: windows-arm64, runner: windows-11-arm}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.version || github.ref }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Set up Windows ARM64 C compiler
+        if: matrix.target == 'windows-arm64'
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'llvm-mingw.zip'
+          $directory = Join-Path $env:RUNNER_TEMP 'llvm-mingw'
+          Invoke-WebRequest 'https://github.com/mstorsjo/llvm-mingw/releases/download/20261020/llvm-mingw-20261020-ucrt-x86_64.zip' -OutFile $archive
+          Expand-Archive $archive -DestinationPath $directory
+          $bin = Join-Path $directory 'llvm-mingw-20261020-ucrt-x86_64/bin'
+          $bin >> $env:GITHUB_PATH
+          'CC=aarch64-w64-mingw32-gcc' >> $env:GITHUB_ENV
+      - name: Build, smoke-test, and verify archive
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: python scripts/release.py build --version "$RELEASE_VERSION" --target "$TARGET" --smoke
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/release/vpxy_*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.version || github.ref }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/release
+          merge-multiple: true
+      - name: Verify all six targets and create checksums
+        run: python scripts/release.py checksums --require-all
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_VERSION" --json isDraft --jq .isDraft > /tmp/vpxy-release-draft; then
+            test "$(cat /tmp/vpxy-release-draft)" = true || { echo 'This version is already published; use a new version tag.' >&2; exit 1; }
+          else
+            gh release create "$RELEASE_VERSION" --verify-tag --draft --title "VibeProxy $RELEASE_VERSION" --notes-file RELEASE_NOTES.md
+          fi
+          gh release upload "$RELEASE_VERSION" dist/release/vpxy_* dist/release/checksums.txt --clobber
+          gh release edit "$RELEASE_VERSION" --draft=false --latest

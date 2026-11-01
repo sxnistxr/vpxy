@@ -1,0 +1,43 @@
+# VibeProxy starter configuration. Copy to config.yaml before launching.
+# The full upstream configuration is available in config.reference.yaml in release archives,
+# or config.example.yaml in the source repository.
+config-version: 8
+
+server:
+  host: "127.0.0.1"
+  port: 8317
+
+management:
+  allow-remote: false
+  secret-key: ""
+
+access:
+  api-keys: []
+
+trusted-networks:
+  enabled: true
+  # Defaults include localhost and Tailscale IPv4/IPv6 ranges.
+  # To connect over Tailscale, set server.host to "" and restart.
+
+quota-monitor:
+  interval: 5m
+  rebuild-alert-tokens: 100000
+
+routing:
+  strategy: expiration-first
+  session-affinity: true
+  session-affinity-ttl: 15m
+  session-affinity-rebind-on: quota
+
+# Keep this path stable when upgrading, so existing account sign-ins are reused.
+oauth:
+  auth-dir: ~/.cli-proxy-api
+  providers:
+    codex:
+      oauth-websockets: true
+
+observability:
+  logs:
+    logging-to-file: true
+  usage:
+    usage-statistics-enabled: true

@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@source ".";
+
+/* Dark is the default; [data-theme="light"] on <html> switches the palette. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #000000;
+  --rail: #0a0a0a;
+  --surface: #0c0c0d;
+  --surface-2: #151516;
+  --surface-3: #1d1d1f;
+  --line: #232325;
+  --line-strong: #333336;
+  --fg: #ededed;
+  --fg-2: #a1a1a6;
+  --fg-3: #808087;
+  --accent: #4d8dff;
+  --ok: #3ecf8e;
+  --warn: #f5a524;
+  --danger: #f2555a;
+  --primary: #ededed;
+  --on-primary: #0a0a0a;
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 16px 48px rgb(0 0 0 / 0.55);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #ffffff;
+  --rail: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --surface-3: #eaeaec;
+  --line: #e6e6e8;
+  --line-strong: #d4d4d8;
+  --fg: #111113;
+  --fg-2: #56565e;
+  --fg-3: #6b6b73;
+  --accent: #2563eb;
+  --ok: #15803d;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --primary: #111113;
+  --on-primary: #ffffff;
+  --overlay: rgb(15 15 18 / 0.35);
+  --shadow-pop: 0 16px 48px rgb(15 15 18 / 0.16);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-rail: var(--rail);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-accent: var(--accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+}
+
+@theme {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --ease-out-quint: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html {
+    background: var(--canvas);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 20px;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scrollbar-color: var(--line-strong) transparent;
+    caret-color: var(--accent);
+  }
+  body {
+    margin: 0;
+    font-size: 13px;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  .brand-light {
+    display: none;
+  }
+  [data-theme="light"] .brand-dark {
+    display: none;
+  }
+  [data-theme="light"] .brand-light {
+    display: block;
+  }
+  .provider-logo {
+    filter: invert(1);
+  }
+  [data-theme="light"] .provider-logo {
+    filter: none;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: var(--fg);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  main p a {
+    text-decoration-line: underline;
+  }
+  ::placeholder {
+    color: var(--fg-3);
+    opacity: 1;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+  dialog::backdrop {
+    background: var(--overlay);
+  }
+}
+
+@layer utilities {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface-2) 0%,
+      var(--surface-3) 50%,
+      var(--surface-2) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton 1.4s ease-in-out infinite;
+    border-radius: 4px;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@keyframes skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
