@@ -271,6 +271,13 @@ func requestExecutionMetadata(ctx context.Context) map[string]any {
 		meta[idempotencyKeyMetadataKey] = key
 	}
 	if requestPath != "" {
+		// Direct Codex aliases share the image executors and payload rules of /v1.
+		switch requestPath {
+		case "/backend-api/codex/images/generations":
+			requestPath = "/v1/images/generations"
+		case "/backend-api/codex/images/edits":
+			requestPath = "/v1/images/edits"
+		}
 		meta[coreexecutor.RequestPathMetadataKey] = requestPath
 	}
 	if pinnedAuthID := pinnedAuthIDFromContext(ctx); pinnedAuthID != "" {
