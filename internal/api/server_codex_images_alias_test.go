@@ -127,3 +127,43 @@ func TestCodexDirectImagesAliasesRequireAuth(t *testing.T) {
 		}
 	}
 }
+
+// Empty probes must stop at local validation, before model/account selection.
+// This distinguishes stale/missing aliases from intentional image disabling
+// without sending a real image request to an upstream provider.
+func TestImagesEndpointEmptyProbe(t *testing.T) {
+	for _, prefix := range []string{"/v1", "/backend-api/codex"} {
+		for _, endpoint := range []string{"generations", "edits"} {
+			for _, mode := range []config.DisableImageGenerationMode{
+				config.DisableImageGenerationOff,
+				config.DisableImageGenerationChat,
+				config.DisableImageGenerationAll,
+			} {
+				path := prefix + "/images/" + endpoint
+				t.Run(fmt.Sprintf("%s/disabled=%s", path, mode), func(t *testing.T) {
+					cfg := &config.Config{}
+					cfg.APIKeys = []string{"test-key"}
+					cfg.DisableImageGeneration = mode
+					server := newTestServerWithConfig(t, cfg)
+					req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(`{}`))
+					req.Header.Set("Content-Type", "application/json")
+					req.Header.Set("Authorization", "Bearer test-key")
+					rr := httptest.NewRecorder()
+					server.engine.ServeHTTP(rr, req)
+					if mode == config.DisableImageGenerationAll {
+						if rr.Code != http.StatusNotFound || rr.Body.Len() != 0 {
+							t.Fatalf("disabled endpoint = %d %q; want empty 404", rr.Code, rr.Body.String())
+						}
+						return
+					}
+					if rr.Code != http.StatusBadRequest {
+						t.Fatalf("empty probe = %d %s; want local validation 400", rr.Code, rr.Body.String())
+					}
+					if got := gjson.GetBytes(rr.Body.Bytes(), "error.message").String(); got != "Invalid request: prompt is required" {
+						t.Fatalf("empty probe error = %q; want missing-prompt validation", got)
+					}
+				})
+			}
+		}
+	}
+}

@@ -1,3 +1,12 @@
+## Unreleased
+
+- Codex-base image routes are available after `47cd48e`. The observed v0.1.0 build
+  (`edbf5cd`) lacks `/backend-api/codex/images/generations` and
+  `/backend-api/codex/images/edits` and returns empty 404s, although its `/v1`
+  image handler is present.
+  See [image routing troubleshooting](docs/IMAGE_GENERATION_TROUBLESHOOTING.md)
+  for safe probes, running-build checks and the distinction from disabled image generation.
+
 ## VibeProxy v0.1.0
 
 First release of VPXY, a personal CLIProxyAPI fork for pooled Claude and Codex subscriptions.
