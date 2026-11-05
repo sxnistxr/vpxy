@@ -164,6 +164,11 @@ supports_websockets = true
 **Other OpenAI-compatible clients:** use `http://localhost:8317/v1` as the base URL and a client
 access key configured in the console when authentication is required.
 
+**Image generation returns an empty 404?** A running release can predate the image aliases
+under `/backend-api/codex`, even when `/v1/images/generations` works. See the
+[image routing troubleshooting guide](docs/IMAGE_GENERATION_TROUBLESHOOTING.md) for the
+confirmed affected build, safe probes, upgrade guidance and other 404 causes.
+
 ## Configuration and Tailscale
 
 The starter profile includes:
